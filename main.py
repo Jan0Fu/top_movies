@@ -46,7 +46,10 @@ db.create_all()
 
 @app.route("/")
 def home():
-    all_movies = Movie.query.all()
+    all_movies = Movie.query.order_by(Movie.rating).all()
+    for i in range(len(all_movies)):
+        all_movies[i].ranking = len(all_movies) - i
+    db.session.commit()
     return render_template("index.html", movies=all_movies)
 
 
@@ -70,7 +73,6 @@ def find_movie():
         data = response.json()
         new_movie = Movie(
             title=data["title"],
-            #The data in release_date includes month and day, we will want to get rid of.
             year=data["release_date"].split("-")[0],
             img_url=f"{MOVIE_DB_IMAGE_URL}{data['poster_path']}",
             description=data["overview"]
